@@ -42,6 +42,17 @@ export interface WassistChannelConfig {
    */
   readonly credentials?: Partial<WassistChannelCredentials>;
   /**
+   * A list of phone numbers that are allowed to send messages to the channel.
+   * Inbound messages from any other sender are rejected with HTTP 401.
+   *
+   * Entries are matched after stripping whitespace and `+` symbols, so
+   * `"+1 415 555 0100"`, `"+14155550100"`, and `"14155550100"` are all
+   * treated as the same number.
+   *
+   * If omitted, all phone numbers are allowed.
+   */
+  readonly senderWhitelist?: string[];
+  /**
    * The HTTP path the channel listens on. Whatever you set here must be the
    * webhook URL you register in the Wassist dashboard, e.g.
    * `https://my-agent.vercel.app/eve/v1/wassist`.
@@ -130,7 +141,18 @@ export function wassistChannel(config: WassistChannelConfig = {}) {
           );
         }
 
-        if (event.event === "message.received") {
+
+        if (event.event === "subscription.message.received") {
+          if (config.senderWhitelist) {
+            const normalize = (n: string) => n.replace(/[\s+]/g, "");
+            const from = normalize(event.from);
+            const allowed = config.senderWhitelist.some(
+              (entry) => normalize(entry) === from,
+            );
+            if (!allowed) {
+              return new Response("Unauthorized", { status: 401 });
+            }
+          }
           send(event.message.body, {
             continuationToken: event.conversationId,
             auth: null,

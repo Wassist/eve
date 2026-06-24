@@ -92,7 +92,13 @@ For example: `https://my-agent.vercel.app/eve/v1/wassist` or `https://abc123.ngr
 
 (Override the path via the `route` config option if you need something else — see below.)
 
-### 6. Send your bot a WhatsApp message
+### 6. Subscribe your phone number to the webhook
+
+The channel listens for [`subscription.message.received`](https://docs.wassist.app/guides/webhooks/routing) — Wassist's "this conversation is routed to my webhook" event. Without a subscription, inbound messages stay on the broadcast `message.received` event and never reach the channel.
+
+In the Wassist dashboard, open the phone number you want the agent to answer and subscribe it to the webhook you registered in step 5. You can also subscribe individual conversations instead of the whole number — see the [routing guide](https://docs.wassist.app/guides/webhooks/routing).
+
+### 7. Send your bot a WhatsApp message
 
 Open WhatsApp, message your connected number, and watch your eve agent reply.
 
@@ -111,7 +117,7 @@ flowchart LR
 1. A WhatsApp user messages your number.
 2. Wassist POSTs a signed webhook to `POST /eve/v1/wassist`.
 3. The channel verifies the `X-Wassist-Signature` header with your webhook secret.
-4. On `message.received`, the channel dispatches the message into eve via `send()`, keyed by the Wassist conversation ID as the eve continuation token.
+4. On [`subscription.message.received`](https://docs.wassist.app/guides/webhooks/routing) — the event Wassist emits when a conversation has been routed to your webhook via `phoneNumbers.subscribe` or `conversations.subscribe` — the channel dispatches the message into eve via `send()`, keyed by the Wassist conversation ID as the eve continuation token. The legacy `message.received` broadcast event is intentionally ignored to avoid double-handling.
 5. eve runs its turn. When the turn emits `message.completed`, the channel ships the reply text back to Wassist with `wassist.conversations.messages.send(...)`.
 6. eve's `turn.started` triggers a WhatsApp typing indicator via `wassist.conversations.typing(...)`.
 
@@ -123,6 +129,7 @@ wassistChannel({
     apiKey: process.env.WASSIST_API_KEY!,
     webhookSecret: process.env.WASSIST_WEBHOOK_SECRET!,
   },
+  senderWhitelist: ["+1 415 555 0100", "+447700900123"],
   route: "/eve/v1/wassist",
   baseUrl: "https://backend.wassist.app",
 });
@@ -132,6 +139,7 @@ wassistChannel({
 |---|---|---|---|
 | `credentials.apiKey` | `string` | `process.env.WASSIST_API_KEY` | Wassist API key. |
 | `credentials.webhookSecret` | `string` | `process.env.WASSIST_WEBHOOK_SECRET` | Webhook signing secret. |
+| `senderWhitelist` | `string[]` | `undefined` (all senders allowed) | Phone numbers permitted to message the agent. Inbound messages from any other sender are rejected with HTTP 401. Entries are compared after stripping whitespace and `+` symbols, so `"+1 415 555 0100"`, `"+14155550100"`, and `"14155550100"` are all equivalent. |
 | `route` | `string` | `"/eve/v1/wassist"` | HTTP path the channel listens on. Must match the webhook URL you set in the Wassist dashboard. |
 | `baseUrl` | `string` | `"https://backend.wassist.app"` | Wassist API base URL. Only override for self-hosted Wassist or non-prod backends. |
 

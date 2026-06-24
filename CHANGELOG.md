@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Switch the inbound dispatch trigger from `message.received` to `subscription.message.received`. The channel now ignores the legacy broadcast event and only handles messages routed via webhook subscription (`phoneNumbers.subscribe` / `conversations.subscribe`), which avoids double-handling when a number fans out to both the agent pipeline and a webhook.
+- Subscribe the receiving phone number (or specific conversation) to your webhook in the Wassist dashboard — without a subscription no events reach the channel.
+
 ## 0.1.0
 
 Initial release.

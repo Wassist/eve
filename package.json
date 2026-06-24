@@ -1,6 +1,6 @@
 {
   "name": "@wassist/eve",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Wassist channel for Vercel eve – drop WhatsApp into any eve agent",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -46,7 +46,7 @@
   "license": "MIT",
   "sideEffects": false,
   "dependencies": {
-    "@wassist/sdk": "^0.1.1"
+    "@wassist/sdk": "^0.1.2"
   },
   "peerDependencies": {
     "eve": ">=0.13.0"
