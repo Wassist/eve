@@ -1,0 +1,23 @@
+{
+  "name": "wassist-eve-quickstart-whatsapp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Minimal Vercel eve agent answering WhatsApp via @wassist/eve",
+  "type": "module",
+  "scripts": {
+    "dev": "eve dev",
+    "build": "eve build",
+    "start": "eve start"
+  },
+  "dependencies": {
+    "@wassist/eve": "^0.1.0",
+    "eve": "^0.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
