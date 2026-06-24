@@ -10,7 +10,7 @@
     "start": "eve start"
   },
   "dependencies": {
-    "@wassist/eve": "^0.1.0",
+    "@wassist/eve": "^0.1.1",
     "eve": "^0.13.0"
   },
   "devDependencies": {
